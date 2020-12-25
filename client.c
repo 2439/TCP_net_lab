@@ -1,5 +1,5 @@
 #include "client.h"
-#include "config.h"
+#include "utils.h"
 
 int main(int argc, char *argv[])
 {
@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     if (argc != 2 || memcmp(argv[0], CLIENT_CHAR, sizeof(CLIENT_CHAR)) != 0)
     {
         printf("input error\n");
-        printf("please input: client server_ip\n");
+        printf("please input: ./client server_ip\n");
         return -1;
     }
 
@@ -23,17 +23,14 @@ void client(const char *ip)
     struct sockaddr_in addr; // 服务器信息结构体
 
     // socket()
-    if ((fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("error create socket\n");
-        return -1;
+        return;
     }
 
-    // connect()，链接服务器地址和端口
-    memset(&addr, 0, sizeof(struct sockaddr_in));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = inet_addr(ip);
-    addr.sin_port = htons(SERVER_PORT);
+    // connect()，连接服务器地址和端口
+    set_addr(&addr, AF_INET, inet_addr(ip), htons(SERVER_PORT));
     if (connect(fd, (struct sockaddr*)(&addr), sizeof(struct sockaddr)) < 0)
     {
         perror("Connect Error:");
@@ -43,4 +40,15 @@ void client(const char *ip)
     {
         printf("connect success!\n");
     }
+
+    // 识别命令与执行
+    // system("netstat -an | grep 1568");	// 查看连接状态
+    // sleep(10);
+    client_commands(fd);
+    return;
+}
+
+void client_commands(int fd) {
+    char buf[]="hello\0";
+    write(fd, buf, sizeof(buf));
 }

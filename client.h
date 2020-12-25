@@ -9,5 +9,6 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 
-#define CLIENT_CHAR "client"
+#define CLIENT_CHAR "./client"
 void client(const char *ip);
+void client_commands(int fd);

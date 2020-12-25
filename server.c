@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     if (argc != 1 || memcmp(argv[0], SERVER_CHAR, sizeof(SERVER_CHAR)) != 0)
     {
         printf("input error\n");
-        printf("please input: server\n");
+        printf("please input: ./server\n");
         return -1;
     }
 
@@ -25,16 +25,14 @@ void server() {
     pthread_t thread_do;
 
     // socket()
-    if((fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
+    if((fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         printf("error create socket\n");
-        return -1;
+        return;
     }
 
     // bind()
-    memset(&addr, 0, sizeof(struct sockaddr_in));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    addr.sin_port = htons(SERVER_PORT);
+    set_addr(&addr, AF_INET, htonl(INADDR_ANY), htons(SERVER_PORT));
+
     if(bind(fd, (struct sockaddr*)(&addr), sizeof(struct sockaddr)) < 0) {
         perror("Bind");
         exit(1);
@@ -51,19 +49,29 @@ void server() {
     }
 
     // accept
-    while(1) {
+    // while(1) {
+    // for(int i=0;i<10;i++){
+        // printf("%d\n",i);
         if((clid = accept(fd, (struct sockaddr*)(&cli_addr), &addrlen)) == -1) {
             perror("Accept");
             exit(1);
         } else {
-            printf("accept success %08x\n", ip_to_s((uint32_t) cli_addr.sin_addr.s_addr));
+            printf("accept success %s\n", inet_ntoa(cli_addr.sin_addr));
+            // read() and write()
             pthread_create(&thread_do, NULL, (void*)handle_request, &clid);
         }
-    }
+    // }
+    // sleep(10);
+    system("netstat -an | grep 1568");	// 查看连接状态
+    return;
 }
 
 void handle_request(void *argv) {
-    int clid = *((int*)argv);
-    char buff[BUFFER_MAX];
+    int clid = *((int *)argv);
+    char buf[BUFFER_MAX];
+    printf("%lu\n", syscall(SYS_gettid));
     
+    read(clid, buf, sizeof(buf));
+    printf("%s\n",buf);
+    return;
 }
