@@ -1,4 +1,5 @@
 #include "server.h"
+#include "utils.h"
 
 int main(int argc, char *argv[])
 {
@@ -55,7 +56,7 @@ void server() {
             perror("Accept");
             exit(1);
         } else {
-            printf("accept success %08x\n", ip_to_s(cli_addr.sin_addr));
+            printf("accept success %08x\n", ip_to_s((uint32_t) cli_addr.sin_addr.s_addr));
             pthread_create(&thread_do, NULL, (void*)handle_request, &clid);
         }
     }
