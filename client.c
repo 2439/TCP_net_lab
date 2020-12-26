@@ -41,8 +41,6 @@ void client(const char *ip)
     }
 
     // 识别命令与执行
-    // system("netstat -an | grep 1568");	// 查看连接状态
-    // sleep(10);
     client_commands(fd);
     close(fd);
 }
@@ -69,10 +67,11 @@ void client_commands(int fd) {
             continue;
         }
         if(strcmp(cmd.argv[0], EXIT) == 0) {
-            my_write(fd, &cmd.argv[0], sizeof(CMD_NAME_LEN));
+            my_write(fd, cmd.argv[0], strlen(cmd.argv[0]));
+            sleep(1);
             return;
         } else {
-            my_write(fd, &cmd.argv[0], sizeof(CMD_NAME_LEN));
+            my_write(fd, cmd.argv[0], strlen(cmd.argv[0]));
             continue;
         }
         system(buf);
@@ -82,7 +81,7 @@ void client_commands(int fd) {
 
 // 客户端上传
 void client_up(int fd, cmd_t cmd) {
-    FILE *fp = fopen(cmd.argv[1], "rb");
+    FILE *fp = fopen(cmd.argv[1], "r");
 
     // cmd长度判断，up 上传客户端文件 上传文件服务器位置
     if(cmd.argc != 3) {
@@ -100,19 +99,13 @@ void client_up(int fd, cmd_t cmd) {
     }
 
     // 命令,文件名上传
-    my_write(fd, cmd.argv[0], sizeof(CMD_NAME_LEN));
+    my_write(fd, cmd.argv[0], strlen(cmd.argv[0]));
     cat1_name_to2(&cmd);
-    printf("cmd.argv[2]:%s\n",cmd.argv[2]);
-    sleep(2);
-    my_write(fd, cmd.argv[2], sizeof(CMD_NAME_LEN));    
+    my_write(fd, cmd.argv[2], strlen(cmd.argv[2]));   
 
     // 文件内容上传
     write_file(fd, fp);
     fclose(fp);
-    
-    // // 文件传输失败或成功
-    // printf("up file ");
-    // read_result(fd);
 }
 
 // 客户端下载
@@ -128,7 +121,7 @@ void client_down(int fd, cmd_t cmd) {
 
     // 文件打开
     cat1_name_to2(&cmd);
-    fp = fopen(cmd.argv[2], "wb");
+    fp = fopen(cmd.argv[2], "w");
     if (fp == NULL) {
         printf("Open %s error\n", cmd.argv[2]);
         return;
@@ -137,17 +130,10 @@ void client_down(int fd, cmd_t cmd) {
     }
 
     // 下载文件请求命令，文件位置
-    my_write(fd, cmd.argv[0], sizeof(CMD_NAME_LEN));
-    my_write(fd, cmd.argv[1], sizeof(CMD_NAME_LEN));  
+    my_write(fd, cmd.argv[0], strlen(cmd.argv[0]));
+    my_write(fd, cmd.argv[1], strlen(cmd.argv[1]));  
 
     // 读取文件
     read_file(fd, fp);
-    // if(read_file(fd, fp) < 0) {
-    //     printf("down file %s\n", FAILED);
-    //     write(fd, FAILED, sizeof(FAILED));
-    // } else {
-    //     printf("down file %s\n", SUCCESS);
-    //     write(fd, SUCCESS, sizeof(SUCCESS));
-    // }
     fclose(fp);
 }

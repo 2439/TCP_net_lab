@@ -57,7 +57,7 @@ void server() {
             // read() and write()
             pthread_create(&thread_do, NULL, (void*)handle_request, &clid);
         }
-        // system("netstat -an | grep 1568");	// 查看连接状态
+        printf("main tid:%ld\n", syscall(SYS_gettid));
     }
     close(fd);
     return;
@@ -67,51 +67,50 @@ void server() {
 void handle_request(void *argv) {
     int clid = *((int *)argv);
     char buf[BUFFER_MAX];
-    
-    while(1) {
-        // printf("pid = %d\n",getpid());
+    int flag = 10;
+
+    while(flag > 0) {
+        printf("tid: %ld\n", syscall(SYS_gettid));
         memset(buf, 0, sizeof(buf));
         my_read(clid, buf, sizeof(buf));
-        printf("%s\n",buf);
         if(strcmp(buf, UP) == 0) {
             server_up(clid);
+            flag = 10;
             continue;
         }
         if(strcmp(buf, DOWN) == 0) {
             server_down(clid);
+            flag = 10;
             continue;
         }
         if(strcmp(buf, EXIT) == 0) {
             break;
         } else {
+            flag --;
             continue;
         }
     }
     close(clid);
     printf("close\n");
-    pthread_cancel(pthread_self());
 }
 
 // 上传服务器端
 void server_up(int fd) {
-    printf("up start\n");
     char buf[BUFFER_MAX];
     FILE *fp;
 
     // 文件打开写入
-    memset(buf, 0, sizeof(buf));
     my_read(fd, buf, sizeof(buf));
-    printf("%s\n",buf);
-    fp = fopen(buf, "wb");
+    fp = fopen(buf, "w");
     if(fp == NULL) {
         printf("open %s error\n", buf);
+        return;
     } else {
         printf("open %s success\n", buf);
     }
 
     read_file(fd, fp);
     fclose(fp);
-    printf("up end\n");
 }
 
 // 从服务端下载
@@ -119,9 +118,8 @@ void server_down(int fd) {
     FILE *fp;
     char buf[BUFFER_MAX];
 
-    memset(buf, 0, sizeof(buf));
     my_read(fd, buf, sizeof(buf));
-    fp = fopen(buf, "rb");
+    fp = fopen(buf, "r");
     if(fp == NULL) {
         printf("open %s error\n", buf);
     } else {

@@ -8,10 +8,10 @@
 #define SERVER_PORT 1568 // 服务器十六进制端口号
 #define BUFFER_MAX 2048
 #define CMD_MAX_ARGS 5  // cmd最大段数
-#define CMD_NAME_LEN 100    // cmd字符串整体长度
 #define SUCCESS "success"
 #define FAILED "failed"
 #define EXIT "exit"
+#define OK "ok"
 
 #define UP "up"
 #define DOWN "down"
@@ -19,7 +19,7 @@
 typedef struct cmd {
     int argc;
     char *argv[CMD_MAX_ARGS];
-    char buf[CMD_NAME_LEN];
+    char buf[BUFFER_MAX];
 } cmd_t;
 
 // 设置addr，清空，设置sin_family,s_addr,port值
@@ -50,7 +50,7 @@ void read_file(int fd, FILE* fp);
 void cat1_name_to2(cmd_t *cmd);
 
 // 保证完全写
-int my_write(int fd, void *buffer, int length);
+int my_write(int fd, char *buffer, int length);
 
 // 保证完全读
-int my_read(int fd, void *buffer, int length);
+int my_read(int fd, char *buffer, int length);
