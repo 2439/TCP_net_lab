@@ -48,7 +48,44 @@ void client(const char *ip)
     return;
 }
 
+// 客户机请求
 void client_commands(int fd) {
-    char buf[]="hello\0";
+    char buf[BUFFER_MAX];
+    cmt_t cmd;
+
     write(fd, buf, sizeof(buf));
+
+    while(getcmd(buf) >= 0) {
+        s_to_cmd(buf, cmd);
+        if(cmd.argc == 0) {
+            continue;
+        }
+        if(strcmp(cmd.argv[0], "up") == 0) {
+            client_up(fd, buf, cmd);
+            continue;
+        }
+        if(strcmp(cmd.argv[0], "down") == 0) {
+            client_down(fd, buf, cmd);
+            continue;
+        }
+        if(strcmp(cmd.argv[0], "shutdown") == 0) {
+            break;
+        }
+        system(buf);
+    }
+}
+
+// 客户端上传
+void client_up(int fd, char *buf, cmd_t cmd) {
+    if(cmd.argc != 3) {
+        printf("error command\n");
+        printf("It should be up ")
+        return;
+    }
+
+}
+
+// 客户端下载
+void client_down(char *buf, cmd_t cmd) {
+
 }
