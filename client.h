@@ -11,7 +11,9 @@
 #include "utils.h"
 
 #define CLIENT_CHAR "./client"
+
 void client(const char *ip);
 void client_commands(int fd);
-void client_up(int fd, char *buf, cmd_t cmd);
-void client_down(int fd, char *buf, cmd_t cmd);
+void client_up(int fd, cmd_t cmd);
+void client_down(int fd, cmd_t cmd);
+

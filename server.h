@@ -18,3 +18,7 @@
 void server();
 // 线程
 void handle_request(void *argv);
+
+void server_up(int fd);
+
+void server_down(int fd);

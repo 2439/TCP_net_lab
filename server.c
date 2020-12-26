@@ -51,30 +51,83 @@ void server() {
     system("mkdir serverfile");
 
     // accept
-    // while(1) {
-    // for(int i=0;i<10;i++){
-        // printf("%d\n",i);
-        if((clid = accept(fd, (struct sockaddr*)(&cli_addr), &addrlen)) == -1) {
-            perror("Accept");
-            exit(1);
-        } else {
+    while(1) {
+        if((clid = accept(fd, (struct sockaddr*)(&cli_addr), &addrlen)) > 0) {
             printf("accept success %s\n", inet_ntoa(cli_addr.sin_addr));
             // read() and write()
             pthread_create(&thread_do, NULL, (void*)handle_request, &clid);
         }
-    // }
-    // sleep(10);
-    system("netstat -an | grep 1568");	// 查看连接状态
+        // system("netstat -an | grep 1568");	// 查看连接状态
+    }
     close(fd);
     return;
 }
 
+// 子线程
 void handle_request(void *argv) {
     int clid = *((int *)argv);
     char buf[BUFFER_MAX];
-    printf("%lu\n", syscall(SYS_gettid));
     
-    read(clid, buf, sizeof(buf));
+    while(1) {
+        // printf("pid = %d\n",getpid());
+        memset(buf, 0, sizeof(buf));
+        my_read(clid, buf, sizeof(buf));
+        printf("%s\n",buf);
+        if(strcmp(buf, UP) == 0) {
+            server_up(clid);
+            continue;
+        }
+        if(strcmp(buf, DOWN) == 0) {
+            server_down(clid);
+            continue;
+        }
+        if(strcmp(buf, EXIT) == 0) {
+            break;
+        } else {
+            continue;
+        }
+    }
+    close(clid);
+    printf("close\n");
+    pthread_cancel(pthread_self());
+}
+
+// 上传服务器端
+void server_up(int fd) {
+    printf("up start\n");
+    char buf[BUFFER_MAX];
+    FILE *fp;
+
+    // 文件打开写入
+    memset(buf, 0, sizeof(buf));
+    my_read(fd, buf, sizeof(buf));
     printf("%s\n",buf);
-    return;
+    fp = fopen(buf, "wb");
+    if(fp == NULL) {
+        printf("open %s error\n", buf);
+    } else {
+        printf("open %s success\n", buf);
+    }
+
+    read_file(fd, fp);
+    fclose(fp);
+    printf("up end\n");
+}
+
+// 从服务端下载
+void server_down(int fd) {
+    FILE *fp;
+    char buf[BUFFER_MAX];
+
+    memset(buf, 0, sizeof(buf));
+    my_read(fd, buf, sizeof(buf));
+    fp = fopen(buf, "rb");
+    if(fp == NULL) {
+        printf("open %s error\n", buf);
+    } else {
+        printf("open %s success\n", buf);
+    }
+
+    write_file(fd, fp);
+    fclose(fp);
 }
