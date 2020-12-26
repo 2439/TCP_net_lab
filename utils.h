@@ -6,6 +6,8 @@
 #define BUFFER_MAX 2048
 #define CMD_MAX_ARGS 5  // cmd最大段数
 #define CMD_NAME_LEN 100    // cmd字符串整体长度
+#define SUCCESS "success"
+#define FAILED "failed"
 
 typedef struct cmd {
     int argc;

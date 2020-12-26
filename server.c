@@ -48,6 +48,8 @@ void server() {
         printf("listen success\n");
     }
 
+    system("mkdir serverfile");
+
     // accept
     // while(1) {
     // for(int i=0;i<10;i++){
@@ -63,6 +65,7 @@ void server() {
     // }
     // sleep(10);
     system("netstat -an | grep 1568");	// 查看连接状态
+    close(fd);
     return;
 }
 
