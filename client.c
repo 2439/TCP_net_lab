@@ -70,9 +70,6 @@ void client_commands(int fd) {
             my_write(fd, cmd.argv[0], strlen(cmd.argv[0]));
             sleep(1);
             return;
-        } else {
-            my_write(fd, cmd.argv[0], strlen(cmd.argv[0]));
-            continue;
         }
         system(buf);
         memset(buf, 0, sizeof(buf));

@@ -4,10 +4,12 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <pthread.h>
+#include <sys/syscall.h>
 
 #define SERVER_PORT 1568 // 服务器十六进制端口号
 #define BUFFER_MAX 2048
-#define CMD_MAX_ARGS 5  // cmd最大段数
+#define CMD_MAX_ARGS 5 // cmd最大段数
 #define SUCCESS "success"
 #define FAILED "failed"
 #define EXIT "exit"
@@ -16,29 +18,30 @@
 #define UP "up"
 #define DOWN "down"
 
-typedef struct cmd {
-    int argc;
-    char *argv[CMD_MAX_ARGS];
-    char buf[BUFFER_MAX];
+typedef struct cmd
+{
+    int argc;                 // 命令段长度
+    char *argv[CMD_MAX_ARGS]; // 命令每段指针
+    char buf[BUFFER_MAX];     // 命令内容
 } cmd_t;
 
 // 设置addr，清空，设置sin_family,s_addr,port值
 void set_addr(struct sockaddr_in *addr, int sin_family, in_addr_t s_addr, in_port_t port);
 
 // 从终端获得命令
-int getcmd(char* buf);
+int getcmd(char *buf);
 
 // 分析终端命令
-void s_to_cmd(char *path, cmd_t* cmd);
+void s_to_cmd(char *path, cmd_t *cmd);
 
 // 清空缓存区
 void flush_in();
 
 // 从fp中读取数据，写入fd中，传输
-void write_file(int fd, FILE* fp);
+void write_file(int fd, FILE *fp);
 
 // 从fd中读取数据，写入fp中
-void read_file(int fd, FILE* fp);
+void read_file(int fd, FILE *fp);
 
 // // 打印传输结果
 // void read_result(int fd);

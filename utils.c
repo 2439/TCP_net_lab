@@ -82,7 +82,6 @@ void read_file(int fd, FILE* fp) {
 
     my_read(fd, buf, sizeof(buf));
     fwrite(buf, 1, strlen(buf), fp);
-    printf("read_file\n");
 }
 
 // 把cmd.argv[1]的文件名写到cmd.argv[2]的文件名后面
@@ -101,8 +100,8 @@ int my_write(int fd, char *buffer, int length) {
     int w = 0;
     char *p = buffer;
 
-    printf("write %s\n", buffer);
-    while(left > 0) {
+    printf("tid=%ld write %s\n", syscall(SYS_gettid), buffer);
+    while(left > 0) { 
         w = write(fd, p, left);
         sleep(1);
         if(w < 0) {
@@ -136,7 +135,7 @@ int my_read(int fd, char *buffer, int length) {
             break;
         }
     }
-    printf("read: %s\n", buffer);
+    printf("tid=%ld read: %s\n", syscall(SYS_gettid), buffer);
     return length - left;
 }
 
